@@ -2,7 +2,7 @@ import { useState } from "react";
 import Modal from "../components/Modal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { roomActions } from "../store/features/room";
-import { ERROR_ENUM, Room_Type } from "../type";
+import { ERROR_ENUM, Room_Type, TURN_TYPE } from "../type";
 import { IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { socket } from "../socket";
@@ -14,6 +14,7 @@ function Home() {
   const navigate = useNavigate();
 
   const rooms = useAppSelector((state) => state.room);
+  const currenId = useAppSelector((state) => state.currentId);
 
   const [isRoomGenerateModalOpen, setIsRoomGenerateModalOpen] = useState<
     boolean
@@ -51,11 +52,14 @@ function Home() {
     const date = new Date();
 
     const newRoom: Room_Type = {
-      id: `${roomName}${password}`,
+      id: currenId,
       name: roomName,
       description,
       password,
       date,
+      userX: currenId,
+      userY: "",
+      turn: TURN_TYPE.START,
     };
 
     dispatch(roomActions.createRoom(newRoom));
@@ -68,16 +72,21 @@ function Home() {
     setPassword("");
     setIsRoomGenerateModalOpen(false);
 
-    navigate(`/room/${newRoom.id}`);
+    navigate(`/room/${currenId}`);
   };
 
   const handleOpenRoom = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    dispatch(currentRoomActions.setRoom(currentRoom));
+    dispatch(currentRoomActions.setRoom({ ...currentRoom, userY: currenId }));
+
+    socket.emit("conectingWithUserY", { ...currentRoom, userY: currenId });
 
     navigate(`/room/${currentRoom.id}`);
   };
+
+  if (currenId.length === 0)
+    return <div>Please, check internet connections!!!</div>;
 
   return (
     <div className={styles.main}>

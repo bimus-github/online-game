@@ -1,13 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { Room_Type } from "../../type";
 
-const initialState: Room_Type = {
-  id: "",
-  name: "",
-  description: "",
-  password: "",
-  date: "",
-};
+const initialState: Room_Type = {} as Room_Type;
 
 export const currentRoomSlice = createSlice({
   name: "currentRoom",

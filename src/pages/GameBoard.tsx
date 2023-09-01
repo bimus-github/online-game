@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
+import { TURN_TYPE } from "../type";
 
 interface Cell_Type {
   id: number;
@@ -16,13 +17,6 @@ enum ERROR_TYPE {
   FULL = "Already printed",
   NO = "",
   END = " The game is over!!!",
-}
-
-enum TURN_TYPE {
-  X = "X",
-  O = "O",
-  START = "START",
-  END = "END",
 }
 
 function GameBoard() {
@@ -242,20 +236,30 @@ function GameBoard() {
   };
 
   const handelRestart = () => {
-    window.location.reload();
+    // window.location.reload();
   };
 
   if (currentRoom.id !== roomId)
     return <div>There is no room with such ID!</div>;
 
   return (
-    <div className={styles.main}>
+    <div
+      className={`${styles.main} 
+    ${currentRoom.userY.length === 0 && "cursor-wait"}
+    ${currentRoom.userX.length === 0 && "cursor-wait"}
+    `}
+    >
       <div className={styles.boardDiv}>
         {cells.map(({ id, value }, i) => (
           <button
+            disabled={
+              currentRoom.userY.length === 0 || currentRoom.userX.length === 0
+            }
             key={i}
             onClick={() => onClickCell(id)}
-            className={styles.srclBtn}
+            className={`${styles.srclBtn}     
+            ${currentRoom.userY.length === 0 && "cursor-wait"}
+            ${currentRoom.userX.length === 0 && "cursor-wait"}`}
           >
             <p className="text-[80px] md:text-[60px] absolute text-gray-600">
               {value}
@@ -269,11 +273,19 @@ function GameBoard() {
           Room: {currentRoom.name}
         </div>
         <button
+          disabled={
+            currentRoom.userY.length === 0 || currentRoom.userX.length === 0
+          }
           onClick={handelRestart}
-          className="bg-bg-btn hover:bg-bg-btn-l p-2"
+          className={`bg-bg-btn hover:bg-bg-btn-l p-2     
+          ${currentRoom.userY.length === 0 && "cursor-wait"}
+          ${currentRoom.userX.length === 0 && "cursor-wait"}`}
         >
           Restart
         </button>
+        {currentRoom.userY.length === 0 && (
+          <p className="text-red-400">Wait until User O joins the game!</p>
+        )}
         {turnX === TURN_TYPE.START && (
           <p>
             Let's start new game <br /> First X will start!
