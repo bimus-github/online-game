@@ -3,6 +3,8 @@ import Modal from "../components/Modal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { roomActions } from "../store/features/room";
 import { ERROR_ENUM, Room_Type } from "../type";
+import { IconButton } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 function Home() {
   const dispatch = useAppDispatch();
@@ -46,10 +48,24 @@ function Home() {
   };
   return (
     <div className={styles.main}>
+      {/* open modal btn */}
       <button onClick={openModal} className={styles.generateRoomBtn}>
         <p>Add room</p>
       </button>
 
+      {/* search input */}
+      <div className={styles.searchDiv}>
+        <input
+          className={styles.searchInput}
+          type="text"
+          placeholder="Search ..."
+        />
+        <IconButton>
+          <SearchIcon />
+        </IconButton>
+      </div>
+
+      {/* room lists */}
       <div className={styles.roomListsDiv}>
         {rooms.length !== 0 ? (
           rooms.map((room, key) => (
@@ -124,12 +140,15 @@ export default Home;
 
 const styles = {
   main: "relative flex justify-center items-center flex-col h-screen",
+
   generateRoomBtn:
     "absolute top-[5%] right-[5%] h-[50px] bg-bg-btn hover:bg-bg-btn-l text-[22px] pl-2 pr-4 rounded shadow-md",
+
   roomListsDiv:
     "w-[60%] bg-bg-d rounded-md p-4 flex flex-col gap-4 shadow-lg overflow-y-auto h-[70%]",
   infoRoom:
     " w-full  bg-bg hover:bg-bg-l p-4 rounded-md shadow-sm flex flex-row justify-around gap-5",
+
   modal: "relative w-full",
   modalTitle: "w-full flex justify-center items-center text-[25px]",
   modalForm: " flex flex-col gap-4",
@@ -138,4 +157,8 @@ const styles = {
   modalInput:
     " w-full overflow-hidden border-[1px] p-2 rounded-md border-slate-700 outline-none",
   createRoomBtn: " bg-bg-btn hover:bg-bg-btn-l p-3 rounded-lg",
+
+  searchDiv:
+    "pl-2 p-1 border-[1px] border-black w-[300px] mb-5 rounded-lg flex flex-row shadow-lg",
+  searchInput: "w-full border-none outline-none",
 };
