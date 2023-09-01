@@ -9,7 +9,7 @@ import { roomActions } from "./store/features/room";
 
 const router = createBrowserRouter([
   {
-    path: "/room",
+    path: "/room/:roomId",
     element: <GameBoard />,
   },
   {
@@ -20,6 +20,7 @@ const router = createBrowserRouter([
 
 function App() {
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     socket.on("connect", () => {
       console.log("user connected");

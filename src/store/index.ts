@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import room from "./features/room";
+import currentRoom from "./features/currentRoom";
 
 export const store = configureStore({
   reducer: {
     room,
+    currentRoom,
   },
 });
 

@@ -6,23 +6,41 @@ import { ERROR_ENUM, Room_Type } from "../type";
 import { IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { socket } from "../socket";
+import { useNavigate } from "react-router-dom";
+import { currentRoomActions } from "../store/features/currentRoom";
 
 function Home() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   const rooms = useAppSelector((state) => state.room);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const [isRoomGenerateModalOpen, setIsRoomGenerateModalOpen] = useState<
+    boolean
+  >(false);
+  const [isOpenRoomModal, setIsOpenRoomModal] = useState<boolean>(false);
 
   const [roomName, setRoomName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<ERROR_ENUM>(ERROR_ENUM.NONE);
 
-  const openModal = () => {
-    setIsModalOpen(true);
+  const [currentRoom, setCurrentRoom] = useState<Room_Type>({} as Room_Type);
+  const [isPassword, setIsPassword] = useState<boolean>(false);
+
+  const openRoomGenerateModal = () => {
+    setIsRoomGenerateModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const closeRoomGenerateModal = () => {
+    setIsRoomGenerateModalOpen(false);
+  };
+  const openRoomModal = () => {
+    setIsOpenRoomModal(true);
+  };
+
+  const closeRoomModal = () => {
+    setIsOpenRoomModal(false);
   };
 
   const handleCreateNewRoom = (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,18 +59,33 @@ function Home() {
     };
 
     dispatch(roomActions.createRoom(newRoom));
+    dispatch(currentRoomActions.setRoom(newRoom));
     socket.emit("createRoom", newRoom);
 
     setError(ERROR_ENUM.NONE);
     setRoomName("");
     setDescription("");
     setPassword("");
-    setIsModalOpen(false);
+    setIsRoomGenerateModalOpen(false);
+
+    navigate(`/room/${newRoom.id}`);
   };
+
+  const handleOpenRoom = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    dispatch(currentRoomActions.setRoom(currentRoom));
+
+    navigate(`/room/${currentRoom.id}`);
+  };
+
   return (
     <div className={styles.main}>
       {/* open modal btn */}
-      <button onClick={openModal} className={styles.generateRoomBtn}>
+      <button
+        onClick={openRoomGenerateModal}
+        className={styles.generateRoomBtn}
+      >
         <p>Add room</p>
       </button>
 
@@ -72,13 +105,20 @@ function Home() {
       <div className={styles.roomListsDiv}>
         {rooms.length !== 0 ? (
           rooms.map((room, key) => (
-            <div className={styles.infoRoom} key={key}>
+            <button
+              onClick={() => {
+                openRoomModal();
+                setCurrentRoom(rooms.filter((r) => r.id === room.id)[0]);
+              }}
+              className={styles.infoRoom}
+              key={key}
+            >
               <p>
                 {key + 1}. {room.name}
               </p>
               <p>{room.description}</p>
               <p>{room.password.length === 0 ? "open" : "lock"}</p>
-            </div>
+            </button>
           ))
         ) : (
           <div>there is no rooms, yet!</div>
@@ -86,7 +126,10 @@ function Home() {
       </div>
 
       {/* generate room modal */}
-      <Modal closeModal={closeModal} isModalOpen={isModalOpen}>
+      <Modal
+        closeModal={closeRoomGenerateModal}
+        isModalOpen={isRoomGenerateModalOpen}
+      >
         <div className={styles.modal}>
           <div className={styles.modalTitle}>Create Room</div>
           <form
@@ -134,6 +177,34 @@ function Home() {
             )}
           </form>
         </div>
+      </Modal>
+
+      {/* open room Modal */}
+
+      <Modal closeModal={closeRoomModal} isModalOpen={isOpenRoomModal}>
+        <form action="" onSubmit={handleOpenRoom} className={styles.modalForm}>
+          <div className={styles.modalInputDiv}>
+            <p className={styles.inputTitle}>Password</p>
+            <input
+              onChange={(e) => {
+                setIsPassword(false);
+                if (e.target.value === currentRoom.password) {
+                  setIsPassword(true);
+                }
+              }}
+              className={`${styles.modalInput} ${
+                error === ERROR_ENUM.PASSWORD ? "border-red-400" : ""
+              }`}
+              type="text"
+              placeholder="eg: 123***"
+            />
+          </div>
+          {isPassword && (
+            <button type="submit" className={styles.createRoomBtn}>
+              Create
+            </button>
+          )}
+        </form>
       </Modal>
     </div>
   );

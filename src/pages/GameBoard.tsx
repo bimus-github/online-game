@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useAppSelector } from "../store/hooks";
 
 interface Cell_Type {
   id: number;
@@ -24,6 +26,9 @@ enum TURN_TYPE {
 }
 
 function GameBoard() {
+  const currentRoom = useAppSelector((state) => state.currentRoom);
+  const { roomId } = useParams();
+
   const [turnX, setTurnX] = useState<TURN_TYPE>(TURN_TYPE.START);
 
   const [cells, setCells] = useState<Cell_Type[]>([
@@ -240,6 +245,9 @@ function GameBoard() {
     window.location.reload();
   };
 
+  if (currentRoom.id !== roomId)
+    return <div>There is no room with such ID!</div>;
+
   return (
     <div className={styles.main}>
       <div className={styles.boardDiv}>
@@ -257,6 +265,9 @@ function GameBoard() {
       </div>
 
       <div className={styles.messageDiv}>
+        <div className="w-full flex justify-center">
+          Room: {currentRoom.name}
+        </div>
         <button
           onClick={handelRestart}
           className="bg-bg-btn hover:bg-bg-btn-l p-2"
