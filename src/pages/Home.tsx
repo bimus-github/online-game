@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Modal from "../components/Modal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { roomActions } from "../store/features/room";
@@ -16,16 +16,6 @@ function Home() {
   const [description, setDescription] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<ERROR_ENUM>(ERROR_ENUM.NONE);
-
-  useEffect(() => {
-    socket.on("connect", () => {
-      console.log("user connected");
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Disconnected from server");
-    });
-  }, []);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -51,6 +41,8 @@ function Home() {
     };
 
     dispatch(roomActions.createRoom(newRoom));
+    socket.emit("createRoom", newRoom);
+
     setError(ERROR_ENUM.NONE);
     setRoomName("");
     setDescription("");
