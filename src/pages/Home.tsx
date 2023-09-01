@@ -49,13 +49,16 @@ function Home() {
       <button onClick={openModal} className={styles.generateRoomBtn}>
         <p>Add room</p>
       </button>
+
       <div className={styles.roomListsDiv}>
         {rooms.length !== 0 ? (
-          rooms.map((_, key) => (
+          rooms.map((room, key) => (
             <div className={styles.infoRoom} key={key}>
-              <p>{key + 1}. Room Name</p>
-              <p></p>
-              <p>lock</p>
+              <p>
+                {key + 1}. {room.name}
+              </p>
+              <p>{room.description}</p>
+              <p>{room.password.length === 0 ? "open" : "lock"}</p>
             </div>
           ))
         ) : (
@@ -122,17 +125,17 @@ export default Home;
 const styles = {
   main: "relative flex justify-center items-center flex-col h-screen",
   generateRoomBtn:
-    "absolute top-[5%] right-[5%] h-[50px] bg-slate-400 hover:bg-slate-300 text-[22px] pl-2 pr-4 rounded shadow-md",
+    "absolute top-[5%] right-[5%] h-[50px] bg-bg-btn hover:bg-bg-btn-l text-[22px] pl-2 pr-4 rounded shadow-md",
   roomListsDiv:
-    "w-[60%] bg-slate-400 rounded-md p-4 flex flex-col gap-4 shadow-lg overflow-y-auto h-[70%]",
+    "w-[60%] bg-bg-d rounded-md p-4 flex flex-col gap-4 shadow-lg overflow-y-auto h-[70%]",
   infoRoom:
-    " w-full  bg-slate-200 hover:bg-slate-100 p-4 rounded-md shadow-sm flex flex-row justify-around gap-5",
-  modal: "relative w-full ",
+    " w-full  bg-bg hover:bg-bg-l p-4 rounded-md shadow-sm flex flex-row justify-around gap-5",
+  modal: "relative w-full",
   modalTitle: "w-full flex justify-center items-center text-[25px]",
   modalForm: " flex flex-col gap-4",
   modalInputDiv: " w-full flex flex-col gap-2",
   inputTitle: "",
   modalInput:
     " w-full overflow-hidden border-[1px] p-2 rounded-md border-slate-700 outline-none",
-  createRoomBtn: " bg-blue-400 hover:bg-blue-300 p-3 rounded-lg",
+  createRoomBtn: " bg-bg-btn hover:bg-bg-btn-l p-3 rounded-lg",
 };

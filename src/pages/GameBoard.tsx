@@ -259,7 +259,7 @@ function GameBoard() {
       <div className={styles.messageDiv}>
         <button
           onClick={handelRestart}
-          className="bg-slate-200 hover:bg-slate-100 p-2"
+          className="bg-bg-btn hover:bg-bg-btn-l p-2"
         >
           Restart
         </button>
@@ -286,11 +286,11 @@ const styles = {
     "@tailwind w-screen relative h-screen flex flex-row sm:flex-col gap-10 justify-around items-center",
 
   boardDiv:
-    "w-[500px] h-[500px]  bg-slate-300 sm:absolute sm:bottom-[10%] sm: shadow-lg shadow-gray-300 grid grid-cols-3 items-center  justify-center gap-4 p-4 rounded-l  lg:w-[400px] lg:h-[400px] md:w-[300px] md:h-[300px]",
+    "w-[500px] h-[500px]  bg-bg-d sm:absolute sm:bottom-[10%] sm: shadow-lg shadow-gray-300 grid grid-cols-3 items-center  justify-center gap-4 p-4 rounded-lg  lg:w-[400px] lg:h-[400px] md:w-[300px] md:h-[300px]",
 
   messageDiv:
-    "w-[300px] lg:w-[250px] md:w-[200px] sm:absolute sm:top-2 sm:right-2 bg-slate-300 shadow-lg shadow-gray-300  rounded-lg flex flex-col gap-4 p-3",
+    "w-[300px] lg:w-[250px] md:w-[200px] sm:absolute sm:top-2 sm:right-2 bg-bg-d shadow-lg shadow-gray-300  rounded-lg flex flex-col gap-4 p-3",
 
   srclBtn:
-    "h-full relative bg-slate-100 flex justify-center items-center  rounded-full shadow-sm hover:bg-slate-200",
+    "h-full relative bg-bg-l flex justify-center items-center  rounded-full shadow-sm hover:bg-white",
 };

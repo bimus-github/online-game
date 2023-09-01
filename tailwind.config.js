@@ -1,4 +1,6 @@
+const colors = require("tailwindcss/colors");
 /** @type {import('tailwindcss').Config} */
+
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
@@ -18,6 +20,15 @@ module.exports = {
 
       sm: { max: "639px" },
       // => @media (max-width: 639px) { ... }
+    },
+    colors: {
+      ...colors,
+      bg: colors.amber[200],
+      "bg-l": colors.amber[100],
+      "bg-d": colors.amber[300],
+      "bg-btn": colors.sky[400],
+      "bg-btn-l": colors.sky[300],
+      "bg-btn-d": colors.sky[500],
     },
   },
   plugins: [],
