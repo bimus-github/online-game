@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../components/Modal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { roomActions } from "../store/features/room";
 import { ERROR_ENUM, Room_Type } from "../type";
 import { IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { socket } from "../socket";
 
 function Home() {
   const dispatch = useAppDispatch();
@@ -15,6 +16,16 @@ function Home() {
   const [description, setDescription] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<ERROR_ENUM>(ERROR_ENUM.NONE);
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("user connected");
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server");
+    });
+  }, []);
 
   const openModal = () => {
     setIsModalOpen(true);
