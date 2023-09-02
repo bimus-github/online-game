@@ -1,7 +1,7 @@
 import { RouterProvider } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { socket } from "./socket";
-import { PLAYER_ENUM, Room_Type } from "./type";
+import { Room_Type } from "./type";
 import { useAppDispatch } from "./store/hooks";
 import { roomActions } from "./store/features/room";
 import { currentRoomActions } from "./store/features/currentRoom";
@@ -10,6 +10,7 @@ import { onbordingRouter, router } from "./router";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { userActions } from "./store/features/user";
+import { getUser } from "./firebase/features/user";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -21,7 +22,12 @@ function App() {
     onAuthStateChanged(auth, async (user) => {
       if (user?.email) {
         setIsLoged(true);
-        dispatch(userActions.set({ email: user.email, as: PLAYER_ENUM.NONE }));
+
+        await getUser(user.email).then((data) => {
+          if (data) {
+            dispatch(userActions.set(data));
+          }
+        });
       }
     });
   }, [dispatch]);

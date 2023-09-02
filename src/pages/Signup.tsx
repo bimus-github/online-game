@@ -4,8 +4,9 @@ import { LinearProgress, Link } from "@mui/material";
 //firebase
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
-import { ERROR_ENUM } from "../type";
+import { ERROR_ENUM, PLAYER_ENUM } from "../type";
 import { useNavigate } from "react-router-dom";
+import { addUser } from "../firebase/features/user";
 
 function Signup() {
   const navigate = useNavigate();
@@ -24,11 +25,15 @@ function Signup() {
     }
 
     createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         // Signed in
         const user = userCredential.user;
         console.log("user logedIn: ", user);
+
+        const id = (Math.random() * 1000000).toString();
         navigate("/");
+
+        await addUser({ email, id, as: PLAYER_ENUM.NONE });
         // ...
       })
       .catch((error) => {

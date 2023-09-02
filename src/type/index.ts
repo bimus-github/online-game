@@ -20,6 +20,7 @@ export enum ERROR_ENUM {
 }
 
 export interface User_Type {
+  id: string;
   email: string;
   as: PLAYER_ENUM;
 }
