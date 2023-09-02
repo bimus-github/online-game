@@ -2,12 +2,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import room from "./features/room";
 import currentRoom from "./features/currentRoom";
 import currentId from "./features/currentId";
+import user from "./features/user";
 
 export const store = configureStore({
   reducer: {
     room,
     currentRoom,
     currentId,
+    user,
   },
 });
 

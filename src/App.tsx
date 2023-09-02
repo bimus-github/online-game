@@ -1,19 +1,30 @@
 import { RouterProvider } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { socket } from "./socket";
-import { Room_Type } from "./type";
+import { PLAYER_ENUM, Room_Type } from "./type";
 import { useAppDispatch } from "./store/hooks";
 import { roomActions } from "./store/features/room";
 import { currentRoomActions } from "./store/features/currentRoom";
 import { currentIdActions } from "./store/features/currentId";
 import { onbordingRouter, router } from "./router";
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { userActions } from "./store/features/user";
 
 function App() {
   const dispatch = useAppDispatch();
 
   // use states
-  const [isLoged, setIsLoged] = useState<boolean>(true);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [isLoged, setIsLoged] = useState<boolean>(false);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user?.email) {
+        setIsLoged(true);
+        dispatch(userActions.set({ email: user.email, as: PLAYER_ENUM.NONE }));
+      }
+    });
+  }, [dispatch]);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -41,9 +52,9 @@ function App() {
     });
   }, [dispatch]);
 
-  if (isLoged) return <RouterProvider router={onbordingRouter} />;
+  if (isLoged) return <RouterProvider router={router} />;
 
-  return <RouterProvider router={router} />;
+  return <RouterProvider router={onbordingRouter} />;
 }
 
 export default App;

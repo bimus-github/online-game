@@ -1,27 +1,49 @@
 import React, { useState } from "react";
-import { Link } from "@mui/material";
+import { LinearProgress, Link } from "@mui/material";
 
 //firebase
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
+import { ERROR_ENUM } from "../type";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<ERROR_ENUM>(ERROR_ENUM.NONE);
+
   const handleCreateAccount = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
+    setError(ERROR_ENUM.NONE);
+    if (password.length < 5) {
+      setLoading(false);
+      return setError(ERROR_ENUM.PASSWORD);
+    }
 
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
+        console.log("user logedIn: ", user);
+        navigate("/");
         // ...
       })
       .catch((error) => {
         const errorCode = error.code;
-        const errorMessage = error.message;
+        console.log(errorCode);
+
+        if (errorCode === "auth/email-already-in-use")
+          setError(ERROR_ENUM.INUSE);
+        if (errorCode === "auth/network-request-failed")
+          setError(ERROR_ENUM.NETWORK);
+
         // ..
       });
+
+    setLoading(false);
   };
 
   return (
@@ -37,28 +59,49 @@ function Signup() {
         </div>
 
         <div className={styles.inputDiv}>
-          <p className={styles.inputTitle}>Email Or Name*</p>
+          <p className={styles.inputTitle}>Email*</p>
           <input
-            type="text"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
             placeholder="eg: Muhammad Amin"
-            className={styles.input}
+            className={`${styles.input} ${
+              error === ERROR_ENUM.INUSE ? "border-[2px] border-red-400" : ""
+            }`}
           />
         </div>
         <div className={styles.inputDiv}>
           <p className={styles.inputTitle}>Password*</p>
           <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             type="text"
             placeholder="eg: 123***"
-            className={styles.input}
+            className={`${styles.input} ${
+              error === ERROR_ENUM.PASSWORD ? "border-[2px] border-red-400" : ""
+            }`}
           />
         </div>
 
         <button className={styles.btn} type="submit">
-          Create
+          {loading ? <LinearProgress /> : "Create"}
         </button>
         <p className={styles.link}>
           If you already have one, go to <Link href="/">Login</Link> page
         </p>
+        {error === ERROR_ENUM.PASSWORD && (
+          <p className={styles.warning}>
+            Password should contain at least 5 symbols!
+          </p>
+        )}
+        {error === ERROR_ENUM.INUSE && (
+          <p className={styles.warning}>This kind email is already in use!</p>
+        )}
+        {error === ERROR_ENUM.NETWORK && (
+          <p className={styles.warning}>
+            Please, check your network cennections!
+          </p>
+        )}
       </form>
     </div>
   );
@@ -76,4 +119,5 @@ const styles = {
   input: "p-3 rounded-lg shadow placeholder:font-mono",
   btn: "bg-bg-btn hover:bg-bg-btn-l p-3 rounded-lg",
   link: "pl-3",
+  warning: "pl-3 text-red-400 font-serif",
 };
