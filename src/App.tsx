@@ -1,27 +1,19 @@
-import GameBoard from "./pages/GameBoard";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Home from "./pages/Home";
-import { useEffect } from "react";
+import { RouterProvider } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { socket } from "./socket";
 import { Room_Type } from "./type";
 import { useAppDispatch } from "./store/hooks";
 import { roomActions } from "./store/features/room";
 import { currentRoomActions } from "./store/features/currentRoom";
 import { currentIdActions } from "./store/features/currentId";
-
-const router = createBrowserRouter([
-  {
-    path: "/room/:roomId",
-    element: <GameBoard />,
-  },
-  {
-    path: "/",
-    element: <Home />,
-  },
-]);
+import { onbordingRouter, router } from "./router";
 
 function App() {
   const dispatch = useAppDispatch();
+
+  // use states
+  const [isLoged, setIsLoged] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -48,6 +40,8 @@ function App() {
       dispatch(currentIdActions.delete());
     });
   }, [dispatch]);
+
+  if (isLoged) return <RouterProvider router={onbordingRouter} />;
 
   return <RouterProvider router={router} />;
 }
