@@ -286,6 +286,9 @@ function GameBoard() {
         {currentRoom.userY.length === 0 && (
           <p className="text-red-400">Wait until User O joins the game!</p>
         )}
+        {currentRoom.userY.length !== 0 && turnX === TURN_TYPE.START && (
+          <p className="text-red-400">User O is active now!</p>
+        )}
         {turnX === TURN_TYPE.START && (
           <p>
             Let's start new game <br /> First X will start!
