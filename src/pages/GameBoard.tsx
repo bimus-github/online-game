@@ -1,208 +1,210 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAppSelector } from "../store/hooks";
-import { TURN_TYPE } from "../type";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { CELL_VALUE_TYPE, ERROR_TYPE, PLAYER_ENUM, TURN_TYPE } from "../type";
+import { socket } from "../socket";
+import { cellActions } from "../store/features/cells";
 
 interface Cell_Type {
   id: number;
   value: CELL_VALUE_TYPE;
 }
-enum CELL_VALUE_TYPE {
-  NULL = "",
+
+enum WIN {
   X = "X",
   O = "O",
-}
-
-enum ERROR_TYPE {
-  FULL = "Already printed",
-  NO = "",
-  END = " The game is over!!!",
+  NONE = "NONE",
 }
 
 function GameBoard() {
-  const currentRoom = useAppSelector((state) => state.currentRoom);
+  const dispatch = useAppDispatch();
+
+  const rooms = useAppSelector((state) => state.room);
+  const user = useAppSelector((user) => user.user);
+  const cells = useAppSelector((state) => state.cells);
+
   const { roomId } = useParams();
+
+  const currentRoom = rooms.filter((room) => room.id === roomId)[0];
+
+  const [cursorWait, setCursorWait] = useState<boolean>(true);
 
   const [turnX, setTurnX] = useState<TURN_TYPE>(TURN_TYPE.START);
 
-  const [cells, setCells] = useState<Cell_Type[]>([
-    {
-      id: 1,
-      value: CELL_VALUE_TYPE.NULL,
-    },
-    {
-      id: 2,
-      value: CELL_VALUE_TYPE.NULL,
-    },
-    {
-      id: 3,
-      value: CELL_VALUE_TYPE.NULL,
-    },
-    {
-      id: 4,
-      value: CELL_VALUE_TYPE.NULL,
-    },
-    {
-      id: 5,
-      value: CELL_VALUE_TYPE.NULL,
-    },
-    {
-      id: 6,
-      value: CELL_VALUE_TYPE.NULL,
-    },
-    {
-      id: 7,
-      value: CELL_VALUE_TYPE.NULL,
-    },
-    {
-      id: 8,
-      value: CELL_VALUE_TYPE.NULL,
-    },
-    {
-      id: 9,
-      value: CELL_VALUE_TYPE.NULL,
-    },
-  ]);
   const [error, setError] = useState<ERROR_TYPE>(ERROR_TYPE.NO);
-  const [win, setWin] = useState<string>("");
+  const [win, setWin] = useState<WIN>(WIN.NONE);
+
+  useEffect(() => {
+    if (user.as === PLAYER_ENUM.AS_X) {
+      if (currentRoom.userY.length === 0) return setCursorWait(true);
+      if (turnX === TURN_TYPE.START || turnX === TURN_TYPE.X)
+        return setCursorWait(false);
+      return setCursorWait(true);
+    }
+    if (user.as === PLAYER_ENUM.AS_O) {
+      if (currentRoom.userX.length === 0) return setCursorWait(true);
+      if (turnX === TURN_TYPE.O) return setCursorWait(false);
+      return setCursorWait(true);
+    }
+  }, [currentRoom.userX.length, currentRoom.userY.length, turnX, user.as]);
 
   useEffect(() => {
     // row 1
     if (
       cells[0].value === cells[1].value &&
-      cells[1].value !== CELL_VALUE_TYPE.NULL &&
+      cells[1].value === CELL_VALUE_TYPE.X &&
       cells[1].value === cells[2].value
     ) {
-      if (turnX === TURN_TYPE.X) {
-        setWin("O is win!!!");
-        setTurnX(TURN_TYPE.END);
-      }
-      if (turnX === TURN_TYPE.O) {
-        setTurnX(TURN_TYPE.END);
+      setWin(WIN.X);
 
-        setWin("X is win!!!");
-      }
+      setTurnX(TURN_TYPE.END);
+    }
+    if (
+      cells[0].value === cells[1].value &&
+      cells[1].value === CELL_VALUE_TYPE.O &&
+      cells[1].value === cells[2].value
+    ) {
+      setWin(WIN.O);
+
+      setTurnX(TURN_TYPE.END);
     }
 
     // row 2
     if (
       cells[3].value === cells[4].value &&
-      cells[4].value !== CELL_VALUE_TYPE.NULL &&
+      cells[4].value === CELL_VALUE_TYPE.X &&
       cells[4].value === cells[5].value
     ) {
-      if (turnX === TURN_TYPE.X) {
-        setWin("O is win!!!");
-        setTurnX(TURN_TYPE.END);
-      }
-      if (turnX === TURN_TYPE.O) {
-        setTurnX(TURN_TYPE.END);
-
-        setWin("X is win!!!");
-      }
+      setWin(WIN.X);
+      setTurnX(TURN_TYPE.END);
+    }
+    if (
+      cells[3].value === cells[4].value &&
+      cells[4].value === CELL_VALUE_TYPE.O &&
+      cells[4].value === cells[5].value
+    ) {
+      setWin(WIN.O);
+      setTurnX(TURN_TYPE.END);
     }
 
     // row 3
     if (
       cells[6].value === cells[7].value &&
-      cells[7].value !== CELL_VALUE_TYPE.NULL &&
+      cells[7].value === CELL_VALUE_TYPE.X &&
       cells[7].value === cells[8].value
     ) {
-      if (turnX === TURN_TYPE.X) {
-        setWin("O is win!!!");
-        setTurnX(TURN_TYPE.END);
-      }
-      if (turnX === TURN_TYPE.O) {
-        setTurnX(TURN_TYPE.END);
-
-        setWin("X is win!!!");
-      }
+      setWin(WIN.X);
+      setTurnX(TURN_TYPE.END);
+    }
+    if (
+      cells[6].value === cells[7].value &&
+      cells[7].value === CELL_VALUE_TYPE.O &&
+      cells[7].value === cells[8].value
+    ) {
+      setWin(WIN.O);
+      setTurnX(TURN_TYPE.END);
     }
 
     // col 1
     if (
       cells[0].value === cells[3].value &&
-      cells[3].value !== CELL_VALUE_TYPE.NULL &&
+      cells[3].value === CELL_VALUE_TYPE.X &&
       cells[3].value === cells[6].value
     ) {
-      if (turnX === TURN_TYPE.X) {
-        setWin("O is win!!!");
-        setTurnX(TURN_TYPE.END);
-      }
-      if (turnX === TURN_TYPE.O) {
-        setTurnX(TURN_TYPE.END);
-
-        setWin("X is win!!!");
-      }
+      setWin(WIN.X);
+      setTurnX(TURN_TYPE.END);
+    }
+    if (
+      cells[0].value === cells[3].value &&
+      cells[3].value === CELL_VALUE_TYPE.O &&
+      cells[3].value === cells[6].value
+    ) {
+      setWin(WIN.O);
+      setTurnX(TURN_TYPE.END);
     }
 
     // col 2
     if (
       cells[1].value === cells[4].value &&
-      cells[4].value !== CELL_VALUE_TYPE.NULL &&
+      cells[4].value === CELL_VALUE_TYPE.X &&
       cells[4].value === cells[7].value
     ) {
-      if (turnX === TURN_TYPE.X) {
-        setWin("O is win!!!");
-        setTurnX(TURN_TYPE.END);
-      }
-      if (turnX === TURN_TYPE.O) {
-        setTurnX(TURN_TYPE.END);
-
-        setWin("X is win!!!");
-      }
+      setWin(WIN.X);
+      setTurnX(TURN_TYPE.END);
+    }
+    if (
+      cells[1].value === cells[4].value &&
+      cells[4].value === CELL_VALUE_TYPE.O &&
+      cells[4].value === cells[7].value
+    ) {
+      setWin(WIN.O);
+      setTurnX(TURN_TYPE.END);
     }
 
     // col 3
     if (
       cells[2].value === cells[5].value &&
-      cells[5].value !== CELL_VALUE_TYPE.NULL &&
+      cells[5].value === CELL_VALUE_TYPE.X &&
       cells[5].value === cells[8].value
     ) {
-      if (turnX === TURN_TYPE.X) {
-        setWin("O is win!!!");
-        setTurnX(TURN_TYPE.END);
-      }
-      if (turnX === TURN_TYPE.O) {
-        setTurnX(TURN_TYPE.END);
-
-        setWin("X is win!!!");
-      }
+      setWin(WIN.X);
+      setTurnX(TURN_TYPE.END);
+    }
+    if (
+      cells[2].value === cells[5].value &&
+      cells[5].value === CELL_VALUE_TYPE.O &&
+      cells[5].value === cells[8].value
+    ) {
+      setWin(WIN.O);
+      setTurnX(TURN_TYPE.END);
     }
 
     // x - 1
     if (
       cells[0].value === cells[4].value &&
-      cells[4].value !== CELL_VALUE_TYPE.NULL &&
+      cells[4].value === CELL_VALUE_TYPE.X &&
       cells[4].value === cells[8].value
     ) {
-      if (turnX === TURN_TYPE.X) {
-        setWin("O is win!!!");
-        setTurnX(TURN_TYPE.END);
-      }
-      if (turnX === TURN_TYPE.O) {
-        setTurnX(TURN_TYPE.END);
-
-        setWin("X is win!!!");
-      }
+      setWin(WIN.X);
+      setTurnX(TURN_TYPE.END);
+    }
+    if (
+      cells[0].value === cells[4].value &&
+      cells[4].value === CELL_VALUE_TYPE.O &&
+      cells[4].value === cells[8].value
+    ) {
+      setWin(WIN.O);
+      setTurnX(TURN_TYPE.END);
     }
 
     // x - 2
     if (
       cells[2].value === cells[4].value &&
-      cells[4].value !== CELL_VALUE_TYPE.NULL &&
+      cells[4].value === CELL_VALUE_TYPE.X &&
       cells[4].value === cells[6].value
     ) {
-      if (turnX === TURN_TYPE.X) {
-        setWin("O is win!!!");
-        setTurnX(TURN_TYPE.END);
-      }
-      if (turnX === TURN_TYPE.O) {
-        setTurnX(TURN_TYPE.END);
-
-        setWin("X is win!!!");
-      }
+      setWin(WIN.X);
+      setTurnX(TURN_TYPE.END);
+    }
+    if (
+      cells[2].value === cells[4].value &&
+      cells[4].value === CELL_VALUE_TYPE.O &&
+      cells[4].value === cells[6].value
+    ) {
+      setWin(WIN.O);
+      setTurnX(TURN_TYPE.END);
     }
   }, [cells, turnX]);
+
+  useEffect(() => {
+    socket.on("updateCell", (cells) => {
+      console.log(cells);
+
+      dispatch(cellActions.set(cells));
+      if (user.as === PLAYER_ENUM.AS_X) setTurnX(TURN_TYPE.X);
+      if (user.as === PLAYER_ENUM.AS_O) setTurnX(TURN_TYPE.O);
+    });
+  }, [dispatch, user.as]);
 
   const onClickCell = (id: number) => {
     if (turnX === TURN_TYPE.END) return setError(ERROR_TYPE.END);
@@ -232,7 +234,14 @@ function GameBoard() {
       return cell;
     });
 
-    setCells(newCells);
+    dispatch(cellActions.set(newCells));
+
+    console.log(currentRoom.userX);
+
+    socket.emit("updateCell", {
+      cells: newCells,
+      id: user.as === PLAYER_ENUM.AS_X ? currentRoom.userY : currentRoom.userX,
+    });
   };
 
   const handelRestart = () => {
@@ -245,21 +254,17 @@ function GameBoard() {
   return (
     <div
       className={`${styles.main} 
-    ${currentRoom.userY.length === 0 && "cursor-wait"}
-    ${currentRoom.userX.length === 0 && "cursor-wait"}
     `}
     >
       <div className={styles.boardDiv}>
         {cells.map(({ id, value }, i) => (
           <button
-            disabled={
-              currentRoom.userY.length === 0 || currentRoom.userX.length === 0
-            }
+            disabled={cursorWait}
             key={i}
             onClick={() => onClickCell(id)}
             className={`${styles.srclBtn}     
-            ${currentRoom.userY.length === 0 && "cursor-wait"}
-            ${currentRoom.userX.length === 0 && "cursor-wait"}`}
+      
+            `}
           >
             <p className="text-[80px] md:text-[60px] absolute text-gray-600">
               {value}
@@ -272,22 +277,26 @@ function GameBoard() {
         <div className="w-full flex justify-center">
           Room: {currentRoom.name}
         </div>
+        <div className="w-full flex justify-center">
+          {user.as === PLAYER_ENUM.AS_O && "You are O"}
+          {user.as === PLAYER_ENUM.AS_X && "You are X"}
+        </div>
         <button
-          disabled={
-            currentRoom.userY.length === 0 || currentRoom.userX.length === 0
-          }
+          disabled={cursorWait}
           onClick={handelRestart}
           className={`bg-bg-btn hover:bg-bg-btn-l p-2     
-          ${currentRoom.userY.length === 0 && "cursor-wait"}
-          ${currentRoom.userX.length === 0 && "cursor-wait"}`}
+    `}
         >
           Restart
         </button>
         {currentRoom.userY.length === 0 && (
           <p className="text-red-400">Wait until User O joins the game!</p>
         )}
-        {currentRoom.userY.length !== 0 && turnX === TURN_TYPE.START && (
+        {currentRoom.userY.length !== 0 && user.as === PLAYER_ENUM.AS_X && (
           <p className="text-red-400">User O is active now!</p>
+        )}
+        {currentRoom.userX.length !== 0 && user.as === PLAYER_ENUM.AS_O && (
+          <p className="text-red-400">User X is active now!</p>
         )}
         {turnX === TURN_TYPE.START && (
           <p>
@@ -299,7 +308,18 @@ function GameBoard() {
         {turnX === TURN_TYPE.X && <p>Turn: X</p>}
         Messages:
         {error !== ERROR_TYPE.NO && <p className="text-red-700">{error}</p>}
-        {win.length !== 0 && <p className="text-green-700">{win}</p>}
+        {win === WIN.X && user.as === PLAYER_ENUM.AS_X && (
+          <p className="text-green-700">You are win!</p>
+        )}
+        {win === WIN.X && user.as !== PLAYER_ENUM.AS_X && (
+          <p className="text-green-700">You lost!</p>
+        )}
+        {win === WIN.O && user.as === PLAYER_ENUM.AS_O && (
+          <p className="text-green-700">You are win!</p>
+        )}
+        {win === WIN.O && user.as !== PLAYER_ENUM.AS_O && (
+          <p className="text-green-700">You lost win!</p>
+        )}
       </div>
     </div>
   );

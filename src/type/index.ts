@@ -37,3 +37,20 @@ export enum TURN_TYPE {
   START = "START",
   END = "END",
 }
+
+export interface Cell_Type {
+  id: number;
+  value: CELL_VALUE_TYPE;
+}
+
+export enum CELL_VALUE_TYPE {
+  NULL = "",
+  X = "X",
+  O = "O",
+}
+
+export enum ERROR_TYPE {
+  FULL = "Already printed",
+  NO = "",
+  END = " The game is over!!!",
+}

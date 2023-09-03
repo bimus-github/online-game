@@ -2,19 +2,20 @@ import { useState } from "react";
 import Modal from "../components/Modal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { roomActions } from "../store/features/room";
-import { ERROR_ENUM, Room_Type, TURN_TYPE } from "../type";
+import { ERROR_ENUM, PLAYER_ENUM, Room_Type, TURN_TYPE } from "../type";
 import { IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { socket } from "../socket";
 import { useNavigate } from "react-router-dom";
-import { currentRoomActions } from "../store/features/currentRoom";
+import { userActions } from "../store/features/user";
 
 function Home() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const rooms = useAppSelector((state) => state.room);
-  const currenId = useAppSelector((state) => state.currentId);
+  const currentId = useAppSelector((state) => state.currentId);
+  const user = useAppSelector((state) => state.user);
 
   const [isRoomGenerateModalOpen, setIsRoomGenerateModalOpen] = useState<
     boolean
@@ -52,18 +53,18 @@ function Home() {
     const date = new Date();
 
     const newRoom: Room_Type = {
-      id: currenId,
+      id: currentId,
       name: roomName,
       description,
       password,
       date,
-      userX: currenId,
+      userX: currentId,
       userY: "",
       turn: TURN_TYPE.START,
     };
 
     dispatch(roomActions.createRoom(newRoom));
-    dispatch(currentRoomActions.setRoom(newRoom));
+    dispatch(userActions.set({ ...user, as: PLAYER_ENUM.AS_X }));
     socket.emit("createRoom", newRoom);
 
     setError(ERROR_ENUM.NONE);
@@ -72,20 +73,21 @@ function Home() {
     setPassword("");
     setIsRoomGenerateModalOpen(false);
 
-    navigate(`/room/${currenId}`);
+    navigate(`/room/${currentId}`);
   };
 
   const handleOpenRoom = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    dispatch(currentRoomActions.setRoom({ ...currentRoom, userY: currenId }));
+    socket.emit("conectingWithUserY", { ...currentRoom, userY: currentId });
 
-    socket.emit("conectingWithUserY", { ...currentRoom, userY: currenId });
+    dispatch(userActions.set({ ...user, as: PLAYER_ENUM.AS_O }));
+    dispatch(roomActions.update({ ...currentRoom, userY: currentId }));
 
     navigate(`/room/${currentRoom.id}`);
   };
 
-  if (currenId.length === 0)
+  if (currentId.length === 0)
     return <div>Please, check internet connections!!!</div>;
 
   return (

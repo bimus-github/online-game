@@ -27,8 +27,7 @@ function Signup() {
     createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         // Signed in
-        const user = userCredential.user;
-        console.log("user logedIn: ", user);
+        // const user = userCredential.user;
 
         const id = (Math.random() * 1000000).toString();
         navigate("/");

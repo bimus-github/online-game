@@ -18,6 +18,11 @@ export const roomSlice = createSlice({
     setRooms: (_, __: { payload: Room_Type[] }) => {
       return __.payload;
     },
+    update: (state, action: { payload: Room_Type }) => {
+      const filter = state.filter((room) => room.id !== action.payload.id);
+
+      return [...filter, action.payload];
+    },
   },
 });
 

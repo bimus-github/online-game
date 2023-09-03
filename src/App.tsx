@@ -4,13 +4,13 @@ import { socket } from "./socket";
 import { Room_Type } from "./type";
 import { useAppDispatch } from "./store/hooks";
 import { roomActions } from "./store/features/room";
-import { currentRoomActions } from "./store/features/currentRoom";
 import { currentIdActions } from "./store/features/currentId";
 import { onbordingRouter, router } from "./router";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { userActions } from "./store/features/user";
 import { getUser } from "./firebase/features/user";
+import { cellActions } from "./store/features/cells";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -47,9 +47,7 @@ function App() {
     });
 
     socket.on("conectingWithUserY", (room: Room_Type) => {
-      console.log(room);
-
-      dispatch(currentRoomActions.setRoom(room));
+      dispatch(roomActions.update(room));
     });
 
     socket.on("disconnect", () => {
