@@ -23,7 +23,7 @@ function Modal({
       onClick={handleOutsideClick}
       className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center"
     >
-      <div ref={modalRef} className="bg-white w-96 rounded-lg p-6">
+      <div ref={modalRef} className="bg-white  rounded-lg p-6">
         {children}
       </div>
     </div>

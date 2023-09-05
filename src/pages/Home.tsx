@@ -228,7 +228,7 @@ function Home() {
           </div>
           {isPassword && (
             <button type="submit" className={styles.createRoomBtn}>
-              Create
+              Open
             </button>
           )}
         </form>
@@ -243,16 +243,18 @@ const styles = {
   main: "relative flex justify-center items-center flex-col h-screen",
 
   generateRoomBtn:
-    "absolute top-[5%] right-[5%] h-[50px] bg-bg-btn hover:bg-bg-btn-l text-[22px] pl-2 pr-4 rounded shadow-md",
+    "absolute top-[5%] right-[5%] h-[50px] md:h-[40px] md:ml-1 md:pr-2 md:text-[18px] bg-bg-btn hover:bg-bg-btn-l text-[22px] pl-2 pr-4 rounded shadow-md",
 
   roomListsDiv:
-    "w-[60%] bg-bg-d rounded-md p-4 flex flex-col gap-4 shadow-lg overflow-y-auto h-[70%]",
+    "w-[60%] bg-bg-d rounded-md p-4 flex flex-col gap-4 shadow-lg overflow-y-auto h-[70%] md:h-[60%]",
   infoRoom:
     " w-full  bg-bg hover:bg-bg-l p-4 rounded-md shadow-sm flex flex-row justify-around gap-5",
 
-  modal: "relative w-full",
+  modal: "relative w-[500px] lg:w-[400px] md:w-[350px] sm:w-[270px]",
   modalTitle: "w-full flex justify-center items-center text-[25px]",
-  modalForm: " flex flex-col gap-4",
+
+  modalForm:
+    "flex flex-col gap-4 w-[500px] lg:w-[400px] md:w-[350px] sm:w-[270px]",
   modalInputDiv: " w-full flex flex-col gap-2",
   inputTitle: "",
   modalInput:
@@ -260,6 +262,6 @@ const styles = {
   createRoomBtn: " bg-bg-btn hover:bg-bg-btn-l p-3 rounded-lg",
 
   searchDiv:
-    "pl-2 p-1 border-[1px] border-black w-[300px] mb-5 rounded-lg flex flex-row shadow-lg",
+    "pl-2 p-1 border-[1px] border-black w-[300px] md:w-[200px] mb-5 rounded-lg flex flex-row shadow-lg",
   searchInput: "w-full border-none outline-none",
 };
