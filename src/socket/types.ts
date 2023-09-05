@@ -9,7 +9,8 @@ export interface ClientToServerEvents {
   askForResetCell: (id: string) => void;
   yes: (id: string) => void;
   no: (id: string) => void;
-  deleteRoom: (id: string) => void;
+  deleteRoom: (room: Room_Type) => void;
+  updateRoom: (room: Room_Type) => void;
 }
 
 export interface ServerToClientEvents {
@@ -21,7 +22,8 @@ export interface ServerToClientEvents {
   askForResetCell: () => void;
   yes: () => void;
   no: () => void;
-  deleteRoom: (id: string) => void;
+  deleteRoom: (room: Room_Type) => void;
+  updateRoom: (room: Room_Type) => void;
 }
 
 export interface InterServerEvents {

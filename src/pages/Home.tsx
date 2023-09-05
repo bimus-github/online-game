@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Modal from "../components/Modal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { roomActions } from "../store/features/room";
-import { ERROR_ENUM, PLAYER_ENUM, Room_Type } from "../type";
+import { ERROR_ENUM, PLAYER_ENUM, Room_Type, STATUS_ENUM } from "../type";
 import { IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { socket } from "../socket";
@@ -29,12 +29,6 @@ function Home() {
 
   const [currentRoom, setCurrentRoom] = useState<Room_Type>({} as Room_Type);
   const [isPassword, setIsPassword] = useState<boolean>(false);
-
-  useEffect(() => {
-    socket.on("deleteRoom", (id) => {
-      dispatch(roomActions.deleteRoom(id));
-    });
-  }, [dispatch]);
 
   const openRoomGenerateModal = () => {
     setIsRoomGenerateModalOpen(true);
@@ -64,6 +58,7 @@ function Home() {
       description,
       password,
       date,
+      status: STATUS_ENUM.EMPTY,
       userX: currentId,
       userY: "",
       usernameX: user.email,
@@ -90,6 +85,7 @@ function Home() {
       ...currentRoom,
       userY: currentId,
       usernameY: user.email,
+      status: STATUS_ENUM.BUSY,
     });
 
     dispatch(userActions.set({ ...user, as: PLAYER_ENUM.AS_O }));
@@ -98,6 +94,7 @@ function Home() {
         ...currentRoom,
         userY: currentId,
         usernameY: user.email,
+        status: STATUS_ENUM.BUSY,
       })
     );
 
@@ -134,22 +131,24 @@ function Home() {
         {rooms.length !== 0 ? (
           rooms.map((room, key) => (
             <button
+              disabled={room.status === STATUS_ENUM.BUSY}
               onClick={() => {
                 openRoomModal();
                 setCurrentRoom(rooms.filter((r) => r.id === room.id)[0]);
               }}
-              className={styles.infoRoom}
+              className={`${styles.infoRoom} ${room.status ===
+                STATUS_ENUM.BUSY && "border-[1px] border-red-500 hover:bg-bg"}`}
               key={key}
             >
               <p>
                 {key + 1}. {room.name}
               </p>
               <p>{room.description}</p>
-              <p>{room.password.length === 0 ? "open" : "lock"}</p>
+              <p>{room.status === STATUS_ENUM.BUSY ? "Busy" : "Open"}</p>
             </button>
           ))
         ) : (
-          <div>there is no rooms, yet!</div>
+          <div>there is no room, yet!</div>
         )}
       </div>
 

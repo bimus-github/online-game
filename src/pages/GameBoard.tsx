@@ -3,13 +3,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { CELL_VALUE_TYPE, ERROR_TYPE, PLAYER_ENUM, TURN_TYPE } from "../type";
+import {
+  CELL_VALUE_TYPE,
+  ERROR_TYPE,
+  PLAYER_ENUM,
+  Room_Type,
+  STATUS_ENUM,
+  TURN_TYPE,
+} from "../type";
 import { socket } from "../socket";
 import { cellActions } from "../store/features/cells";
 import Modal from "../components/Modal";
 import { roomActions } from "../store/features/room";
 import { userActions } from "../store/features/user";
 import { turnActions } from "../store/features/turn";
+import { currentIdActions } from "../store/features/currentId";
 
 interface Cell_Type {
   id: number;
@@ -49,9 +57,9 @@ function GameBoard() {
 
   useEffect(() => {
     window.onpopstate = null;
+
     const beforeClosing = (e: PopStateEvent) => {
       e.preventDefault();
-      console.log("befo closing");
 
       if (user.as === PLAYER_ENUM.AS_X) {
         console.log(turn);
@@ -62,7 +70,7 @@ function GameBoard() {
           );
 
           if (result) {
-            socket.emit("deleteRoom", currentRoom.id);
+            socket.emit("deleteRoom", currentRoom);
             dispatch(roomActions.deleteRoom(currentRoom.id));
             dispatch(cellActions.reset());
             dispatch(userActions.set({ ...user, as: PLAYER_ENUM.NONE }));
@@ -78,7 +86,7 @@ function GameBoard() {
         );
 
         if (result) {
-          socket.emit("deleteRoom", currentRoom.id);
+          socket.emit("deleteRoom", currentRoom);
           dispatch(roomActions.deleteRoom(currentRoom.id));
           dispatch(cellActions.reset());
           dispatch(userActions.set({ ...user, as: PLAYER_ENUM.NONE }));
@@ -93,9 +101,19 @@ function GameBoard() {
         if (turn === TURN_TYPE.O || turn === TURN_TYPE.X) {
           const result = confirm("If you leave this room, you will be lost!");
           if (result) {
-            socket.emit("deleteRoom", currentRoom.id);
+            socket.emit("updateRoom", {
+              ...currentRoom,
+              usernameY: "",
+              userY: "",
+              status: STATUS_ENUM.EMPTY,
+            });
             dispatch(
-              roomActions.update({ ...currentRoom, usernameY: "", userY: "" })
+              roomActions.update({
+                ...currentRoom,
+                usernameY: "",
+                userY: "",
+                status: STATUS_ENUM.EMPTY,
+              })
             );
             dispatch(userActions.set({ ...user, as: PLAYER_ENUM.NONE }));
             dispatch(cellActions.reset());
@@ -105,9 +123,19 @@ function GameBoard() {
 
           return;
         }
-        socket.emit("deleteRoom", currentRoom.id);
+        socket.emit("updateRoom", {
+          ...currentRoom,
+          usernameY: "",
+          userY: "",
+          status: STATUS_ENUM.EMPTY,
+        });
         dispatch(
-          roomActions.update({ ...currentRoom, usernameY: "", userY: "" })
+          roomActions.update({
+            ...currentRoom,
+            usernameY: "",
+            userY: "",
+            status: STATUS_ENUM.EMPTY,
+          })
         );
       }
     };
@@ -115,41 +143,46 @@ function GameBoard() {
     window.onpopstate = beforeClosing;
   }, [currentRoom, dispatch, navigate, turn, user]);
 
+  socket.on("conectingWithUserY", (room: Room_Type) => {
+    if (room.id === currentRoom.id) {
+      setWin(WIN.NONE);
+    }
+  });
+
   useEffect(() => {
-    socket.on("deleteRoom", (id) => {
-      dispatch(roomActions.createRoom(currentRoom));
-
-      if (currentRoom.id === id) {
-        if (user.as === PLAYER_ENUM.AS_O) {
-          if (turn === TURN_TYPE.O || turn === TURN_TYPE.X) {
-            setWin(WIN.O);
-            dispatch(turnActions.end());
-
-            const goBack = () => {
-              dispatch(roomActions.deleteRoom(currentRoom.id));
-              dispatch(cellActions.reset());
-              dispatch(userActions.set({ ...user, as: PLAYER_ENUM.NONE }));
-              navigate("/");
-            };
-            dispatch(roomActions.update({ ...currentRoom, userX: "" }));
-            window.onpopstate = goBack;
-          }
-        }
-
-        if (user.as === PLAYER_ENUM.AS_X) {
-          setWin(WIN.X);
+    socket.on("deleteRoom", (room) => {
+      // if (currentRoom.id === room.id) {
+      if (user.as === PLAYER_ENUM.AS_O) {
+        if (turn === TURN_TYPE.O || turn === TURN_TYPE.X) {
+          setWin(WIN.O);
           dispatch(turnActions.end());
-          dispatch(
-            roomActions.update({ ...currentRoom, userY: "", usernameY: "" })
-          );
-          return;
-        }
 
+          dispatch(roomActions.update({ ...room, userX: "" }));
+        }
         dispatch(cellActions.reset());
         dispatch(userActions.set({ ...user, as: PLAYER_ENUM.NONE }));
         navigate("/");
       }
-      dispatch(roomActions.deleteRoom(currentRoom.id));
+      // }
+      dispatch(roomActions.deleteRoom(room.id));
+    });
+
+    socket.on("updateRoom", (room) => {
+      if (currentRoom.id === room.id) {
+        if (user.as === PLAYER_ENUM.AS_X) {
+          setWin(WIN.X);
+          dispatch(turnActions.end());
+          dispatch(
+            roomActions.update({
+              ...currentRoom,
+              userY: "",
+              usernameY: "",
+              status: STATUS_ENUM.EMPTY,
+            })
+          );
+          return;
+        }
+      }
     });
   }, [currentRoom, dispatch, navigate, turn, user]);
 

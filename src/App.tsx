@@ -2,7 +2,7 @@ import { RouterProvider } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { socket } from "./socket";
 import { Room_Type } from "./type";
-import { useAppDispatch } from "./store/hooks";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { roomActions } from "./store/features/room";
 import { currentIdActions } from "./store/features/currentId";
 import { onbordingRouter, router } from "./router";
@@ -10,9 +10,13 @@ import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { userActions } from "./store/features/user";
 import { getUser } from "./firebase/features/user";
+import { turnActions } from "./store/features/turn";
+import { cellActions } from "./store/features/cells";
 
 function App() {
   const dispatch = useAppDispatch();
+  const currentId = useAppSelector((state) => state.currentId);
+  const user = useAppSelector((state) => state.user);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -47,6 +51,23 @@ function App() {
   }, [dispatch]);
 
   useEffect(() => {
+    socket.on("deleteRoom", (room) => {
+      if (user.email) {
+        console.log(user);
+        console.log(room);
+
+        if (room.userY !== user.email) {
+          dispatch(roomActions.deleteRoom(room.id));
+        }
+      }
+    });
+
+    socket.on("updateRoom", (room) => {
+      dispatch(roomActions.update(room));
+    });
+  }, [dispatch, user]);
+
+  useEffect(() => {
     socket.on("connect", () => {
       console.log("user connected");
     });
@@ -62,6 +83,8 @@ function App() {
 
     socket.on("conectingWithUserY", (room: Room_Type) => {
       dispatch(roomActions.update(room));
+      dispatch(turnActions.start());
+      dispatch(cellActions.reset());
     });
 
     socket.on("disconnect", () => {

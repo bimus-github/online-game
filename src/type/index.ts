@@ -8,6 +8,12 @@ export interface Room_Type {
   date: Date | string;
   usernameX: string;
   usernameY: string;
+  status: STATUS_ENUM;
+}
+
+export enum STATUS_ENUM {
+  EMPTY = "EMPTY",
+  BUSY = "BUSY",
 }
 
 export enum ERROR_ENUM {
