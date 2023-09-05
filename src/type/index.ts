@@ -5,8 +5,9 @@ export interface Room_Type {
   password: string;
   userX: string;
   userY: string;
-  turn: TURN_TYPE;
   date: Date | string;
+  usernameX: string;
+  usernameY: string;
 }
 
 export enum ERROR_ENUM {

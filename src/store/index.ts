@@ -3,6 +3,7 @@ import room from "./features/room";
 import currentId from "./features/currentId";
 import user from "./features/user";
 import cells from "./features/cells";
+import turn from "./features/turn";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     currentId,
     user,
     cells,
+    turn,
   },
 });
 

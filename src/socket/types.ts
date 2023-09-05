@@ -4,16 +4,24 @@ export interface ClientToServerEvents {
   createRoom: (room: Room_Type) => void;
   conectingWithUserY: (room: Room_Type) => void;
   gettingId: () => void;
-  updateRoom: () => void;
   updateCell: ({ cells, id }: { cells: Cell_Type[]; id: string }) => void;
+  resetCell: (id: string) => void;
+  askForResetCell: (id: string) => void;
+  yes: (id: string) => void;
+  no: (id: string) => void;
+  deleteRoom: (id: string) => void;
 }
 
 export interface ServerToClientEvents {
   createRoom: (room: Room_Type) => void;
   conectingWithUserY: (room: Room_Type) => void;
   gettingId: (id: string) => void;
-  updateRoom: () => void;
   updateCell: (cells: Cell_Type[]) => void;
+  resetCell: () => void;
+  askForResetCell: () => void;
+  yes: () => void;
+  no: () => void;
+  deleteRoom: (id: string) => void;
 }
 
 export interface InterServerEvents {

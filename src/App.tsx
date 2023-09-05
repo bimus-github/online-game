@@ -10,10 +10,24 @@ import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { userActions } from "./store/features/user";
 import { getUser } from "./firebase/features/user";
-import { cellActions } from "./store/features/cells";
 
 function App() {
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = ""; // Chrome requires a non-empty string
+
+      return "Are you sure you want to leave this page?";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   // use states
   const [isLoged, setIsLoged] = useState<boolean>(false);

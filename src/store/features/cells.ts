@@ -48,7 +48,44 @@ export const cellSlice = createSlice({
       return action.payload;
     },
     reset: () => {
-      return initialState;
+      return [
+        {
+          id: 1,
+          value: CELL_VALUE_TYPE.NULL,
+        },
+        {
+          id: 2,
+          value: CELL_VALUE_TYPE.NULL,
+        },
+        {
+          id: 3,
+          value: CELL_VALUE_TYPE.NULL,
+        },
+        {
+          id: 4,
+          value: CELL_VALUE_TYPE.NULL,
+        },
+        {
+          id: 5,
+          value: CELL_VALUE_TYPE.NULL,
+        },
+        {
+          id: 6,
+          value: CELL_VALUE_TYPE.NULL,
+        },
+        {
+          id: 7,
+          value: CELL_VALUE_TYPE.NULL,
+        },
+        {
+          id: 8,
+          value: CELL_VALUE_TYPE.NULL,
+        },
+        {
+          id: 9,
+          value: CELL_VALUE_TYPE.NULL,
+        },
+      ];
     },
   },
 });

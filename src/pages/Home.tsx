@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../components/Modal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { roomActions } from "../store/features/room";
-import { ERROR_ENUM, PLAYER_ENUM, Room_Type, TURN_TYPE } from "../type";
+import { ERROR_ENUM, PLAYER_ENUM, Room_Type } from "../type";
 import { IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { socket } from "../socket";
@@ -29,6 +29,12 @@ function Home() {
 
   const [currentRoom, setCurrentRoom] = useState<Room_Type>({} as Room_Type);
   const [isPassword, setIsPassword] = useState<boolean>(false);
+
+  useEffect(() => {
+    socket.on("deleteRoom", (id) => {
+      dispatch(roomActions.deleteRoom(id));
+    });
+  }, [dispatch]);
 
   const openRoomGenerateModal = () => {
     setIsRoomGenerateModalOpen(true);
@@ -60,7 +66,8 @@ function Home() {
       date,
       userX: currentId,
       userY: "",
-      turn: TURN_TYPE.START,
+      usernameX: user.email,
+      usernameY: "",
     };
 
     dispatch(roomActions.createRoom(newRoom));
@@ -79,10 +86,20 @@ function Home() {
   const handleOpenRoom = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    socket.emit("conectingWithUserY", { ...currentRoom, userY: currentId });
+    socket.emit("conectingWithUserY", {
+      ...currentRoom,
+      userY: currentId,
+      usernameY: user.email,
+    });
 
     dispatch(userActions.set({ ...user, as: PLAYER_ENUM.AS_O }));
-    dispatch(roomActions.update({ ...currentRoom, userY: currentId }));
+    dispatch(
+      roomActions.update({
+        ...currentRoom,
+        userY: currentId,
+        usernameY: user.email,
+      })
+    );
 
     navigate(`/room/${currentRoom.id}`);
   };
