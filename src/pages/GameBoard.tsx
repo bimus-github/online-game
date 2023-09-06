@@ -3,57 +3,44 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+
 import {
   CELL_VALUE_TYPE,
+  Cell_Type,
   ERROR_TYPE,
   PLAYER_ENUM,
   Room_Type,
   STATUS_ENUM,
   TURN_TYPE,
+  WIN,
 } from "../type";
+
 import { socket } from "../socket";
+
 import { cellActions } from "../store/features/cells";
-import Modal from "../components/Modal";
 import { roomActions } from "../store/features/room";
 import { userActions } from "../store/features/user";
 import { turnActions } from "../store/features/turn";
-import { currentIdActions } from "../store/features/currentId";
 
-interface Cell_Type {
-  id: number;
-  value: CELL_VALUE_TYPE;
-}
-
-enum WIN {
-  X = "X",
-  O = "O",
-  NONE = "NONE",
-}
+import Modal from "../components/Modal";
 
 function GameBoard() {
-  const dispatch = useAppDispatch();
+  const { roomId } = useParams();
   const navigate = useNavigate();
 
+  const dispatch = useAppDispatch();
   const rooms = useAppSelector((state) => state.room);
   const user = useAppSelector((state) => state.user);
   const cells = useAppSelector((state) => state.cells);
   const turn = useAppSelector((state) => state.turn);
 
-  const { roomId } = useParams();
-
   const currentRoom = rooms.filter((room) => room.id === roomId)[0];
 
   const [cursorWait, setCursorWait] = useState<boolean>(true);
-
   const [openResetModal, setOpenResetModal] = useState<boolean>(false);
-
   const [message, setMessage] = useState<string>("");
-
   const [error, setError] = useState<ERROR_TYPE>(ERROR_TYPE.NO);
   const [win, setWin] = useState<WIN>(WIN.NONE);
-
-  console.log(turn);
-  console.log(turn === TURN_TYPE.START || turn === TURN_TYPE.END);
 
   useEffect(() => {
     window.onpopstate = null;

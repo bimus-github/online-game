@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { LinearProgress, Link } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-//firebase
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
-import { ERROR_ENUM, PLAYER_ENUM } from "../type";
-import { useNavigate } from "react-router-dom";
 import { addUser } from "../firebase/features/user";
+
+import { ERROR_ENUM, PLAYER_ENUM } from "../type";
+
+import { LinearProgress, Link } from "@mui/material";
 
 function Signup() {
   const navigate = useNavigate();

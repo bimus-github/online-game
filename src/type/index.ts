@@ -68,3 +68,9 @@ export enum ERROR_TYPE {
   NO = "",
   END = " The game is over!!!",
 }
+
+export enum WIN {
+  X = "X",
+  O = "O",
+  NONE = "NONE",
+}

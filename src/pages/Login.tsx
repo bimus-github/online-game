@@ -1,8 +1,11 @@
-import { LinearProgress, Link } from "@mui/material";
 import React, { useState } from "react";
-import { ERROR_ENUM } from "../type";
+
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
+
+import { LinearProgress, Link } from "@mui/material";
+
+import { ERROR_ENUM } from "../type";
 
 function Login() {
   const [email, setEmail] = useState<string>("");
@@ -33,6 +36,7 @@ function Login() {
 
     setLoading(false);
   };
+
   return (
     <div className={styles.main}>
       <form className={styles.formDiv} onSubmit={handleOpenApp}>

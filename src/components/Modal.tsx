@@ -1,14 +1,13 @@
 import { useRef } from "react";
 
-function Modal({
-  isModalOpen,
-  closeModal,
-  children,
-}: {
+interface ModalProps {
   isModalOpen: boolean;
   closeModal: () => void;
   children: JSX.Element;
-}) {
+}
+
+function Modal(props: ModalProps) {
+  const { isModalOpen, closeModal, children } = props;
   const modalRef = useRef<HTMLDivElement>(null);
 
   const handleOutsideClick = (event: React.MouseEvent<HTMLElement>) => {

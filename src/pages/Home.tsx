@@ -1,13 +1,18 @@
 import { useState } from "react";
-import Modal from "../components/Modal";
+import { useNavigate } from "react-router-dom";
+
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+
 import { roomActions } from "../store/features/room";
+import { userActions } from "../store/features/user";
+
+import { socket } from "../socket";
+
 import { ERROR_ENUM, PLAYER_ENUM, Room_Type, STATUS_ENUM } from "../type";
+
 import { IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { socket } from "../socket";
-import { useNavigate } from "react-router-dom";
-import { userActions } from "../store/features/user";
+import Modal from "../components/Modal";
 
 function Home() {
   const dispatch = useAppDispatch();
@@ -207,7 +212,6 @@ function Home() {
       </Modal>
 
       {/* open room Modal */}
-
       <Modal closeModal={closeRoomModal} isModalOpen={isOpenRoomModal}>
         <form action="" onSubmit={handleOpenRoom} className={styles.modalForm}>
           <div className={styles.modalInputDiv}>

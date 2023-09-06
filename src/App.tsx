@@ -1,22 +1,27 @@
-import { RouterProvider } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { socket } from "./socket";
+
+import { RouterProvider } from "react-router-dom";
+import { onbordingRouter, router } from "./router";
+
 import { Room_Type } from "./type";
+
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { roomActions } from "./store/features/room";
-import { currentIdActions } from "./store/features/currentId";
-import { onbordingRouter, router } from "./router";
-import { auth } from "./firebase";
-import { onAuthStateChanged } from "firebase/auth";
 import { userActions } from "./store/features/user";
-import { getUser } from "./firebase/features/user";
 import { turnActions } from "./store/features/turn";
 import { cellActions } from "./store/features/cells";
+import { currentIdActions } from "./store/features/currentId";
+
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { getUser } from "./firebase/features/user";
 
 function App() {
   const dispatch = useAppDispatch();
-  const currentId = useAppSelector((state) => state.currentId);
   const user = useAppSelector((state) => state.user);
+
+  const [isLoged, setIsLoged] = useState<boolean>(false);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -32,9 +37,6 @@ function App() {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
-
-  // use states
-  const [isLoged, setIsLoged] = useState<boolean>(false);
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
