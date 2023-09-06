@@ -11,6 +11,13 @@ export interface Room_Type {
   status: STATUS_ENUM;
 }
 
+export interface Game_Type {
+  id: string;
+  usernameX: string;
+  usernameY: string;
+  winnerName: string;
+}
+
 export enum STATUS_ENUM {
   EMPTY = "EMPTY",
   BUSY = "BUSY",
