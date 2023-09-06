@@ -4,6 +4,7 @@ import currentId from "./features/currentId";
 import user from "./features/user";
 import cells from "./features/cells";
 import turn from "./features/turn";
+import game from "./features/games";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     user,
     cells,
     turn,
+    game,
   },
 });
 
