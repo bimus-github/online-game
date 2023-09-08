@@ -497,8 +497,7 @@ function GameBoard() {
           <button
             disabled={turn === TURN_TYPE.END ? false : cursorWait}
             onClick={handelRestart}
-            className={`bg-bg-btn hover:bg-bg-btn-l p-2     
-    `}
+            className={`bg-bg-btn hover:bg-bg-btn-l p-2`}
           >
             Restart
           </button>
@@ -528,7 +527,6 @@ function GameBoard() {
         </div>
 
         {/* modal for reset cells */}
-
         <Modal
           closeModal={() => setOpenResetModal(false)}
           isModalOpen={openResetModal}
