@@ -80,7 +80,7 @@ function Signup() {
           <input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            type="text"
+            type="password"
             placeholder="eg: 123***"
             className={`${styles.input} ${
               error === ERROR_ENUM.PASSWORD ? "border-[2px] border-red-400" : ""

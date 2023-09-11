@@ -1,13 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-restricted-globals */
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 import {
   CELL_VALUE_TYPE,
   Cell_Type,
   ERROR_TYPE,
+  Game_Type,
   PLAYER_ENUM,
   Room_Type,
   STATUS_ENUM,
@@ -23,10 +24,14 @@ import { userActions } from "../store/features/user";
 import { turnActions } from "../store/features/turn";
 
 import Modal from "../components/Modal";
+import { addGame } from "../firebase/features/game";
+import { gameActions } from "../store/features/games";
+import { currentIdActions } from "../store/features/currentId";
 
 function GameBoard() {
   const { roomId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const dispatch = useAppDispatch();
   const rooms = useAppSelector((state) => state.room);
@@ -45,15 +50,31 @@ function GameBoard() {
   useEffect(() => {
     window.onpopstate = null;
 
-    const beforeClosing = (e: PopStateEvent) => {
-      e.preventDefault();
+    if (location.pathname.includes("room")) {
+      const beforeClosing = async (e: PopStateEvent) => {
+        e.preventDefault();
 
-      if (user.as === PLAYER_ENUM.AS_X) {
-        console.log(turn);
+        if (user.as === PLAYER_ENUM.AS_X) {
+          if (turn === TURN_TYPE.START || turn === TURN_TYPE.END) {
+            const result = confirm(
+              "If you leave this room, room will be closed, so please wait your opponent!"
+            );
 
-        if (turn === TURN_TYPE.START || turn === TURN_TYPE.END) {
+            if (result) {
+              socket.emit("deleteRoom", currentRoom);
+              dispatch(roomActions.deleteRoom(currentRoom.id));
+              dispatch(cellActions.reset());
+              dispatch(userActions.set({ ...user, as: PLAYER_ENUM.NONE }));
+              dispatch(currentIdActions.delete());
+            } else {
+              navigate(`/room/${currentRoom.id}`);
+            }
+
+            return;
+          }
+
           const result = confirm(
-            "If you leave this room, room will be closed, so please wait your opponent!"
+            "If you leave this room, the room will be closed and you will LOST!"
           );
 
           if (result) {
@@ -61,6 +82,7 @@ function GameBoard() {
             dispatch(roomActions.deleteRoom(currentRoom.id));
             dispatch(cellActions.reset());
             dispatch(userActions.set({ ...user, as: PLAYER_ENUM.NONE }));
+            dispatch(currentIdActions.delete());
           } else {
             navigate(`/room/${currentRoom.id}`);
           }
@@ -68,66 +90,62 @@ function GameBoard() {
           return;
         }
 
-        const result = confirm(
-          "If you leave this room, the room will be closed and you will LOST!"
-        );
+        if (user.as === PLAYER_ENUM.AS_O) {
+          if (currentRoom.userX.length === 0) return navigate("/");
 
-        if (result) {
-          socket.emit("deleteRoom", currentRoom);
-          dispatch(roomActions.deleteRoom(currentRoom.id));
-          dispatch(cellActions.reset());
-          dispatch(userActions.set({ ...user, as: PLAYER_ENUM.NONE }));
-        } else {
-          navigate(`/room/${currentRoom.id}`);
-        }
+          if (turn === TURN_TYPE.O || turn === TURN_TYPE.X) {
+            const result = confirm("If you leave this room, you will be lost!");
+            if (result) {
+              const game: Game_Type = {
+                id: (Math.random() * 100000).toString(),
+                usernameX: currentRoom.usernameX,
+                usernameY: currentRoom.usernameY,
+                winnerName: currentRoom.usernameY,
+              };
+              await addGame(game);
 
-        return;
-      }
-
-      if (user.as === PLAYER_ENUM.AS_O) {
-        if (turn === TURN_TYPE.O || turn === TURN_TYPE.X) {
-          const result = confirm("If you leave this room, you will be lost!");
-          if (result) {
-            socket.emit("updateRoom", {
-              ...currentRoom,
-              usernameY: "",
-              userY: "",
-              status: STATUS_ENUM.EMPTY,
-            });
-            dispatch(
-              roomActions.update({
+              dispatch(gameActions.addGame(game));
+              socket.emit("updateRoom", {
                 ...currentRoom,
                 usernameY: "",
                 userY: "",
                 status: STATUS_ENUM.EMPTY,
-              })
-            );
-            dispatch(userActions.set({ ...user, as: PLAYER_ENUM.NONE }));
-            dispatch(cellActions.reset());
-          } else {
-            navigate(`/room/${currentRoom.id}`);
-          }
+              });
+              dispatch(
+                roomActions.update({
+                  ...currentRoom,
+                  usernameY: "",
+                  userY: "",
+                  status: STATUS_ENUM.EMPTY,
+                })
+              );
+              dispatch(userActions.set({ ...user, as: PLAYER_ENUM.NONE }));
+              dispatch(cellActions.reset());
+            } else {
+              navigate(`/room/${currentRoom.id}`);
+            }
 
-          return;
-        }
-        socket.emit("updateRoom", {
-          ...currentRoom,
-          usernameY: "",
-          userY: "",
-          status: STATUS_ENUM.EMPTY,
-        });
-        dispatch(
-          roomActions.update({
+            return;
+          }
+          socket.emit("updateRoom", {
             ...currentRoom,
             usernameY: "",
             userY: "",
             status: STATUS_ENUM.EMPTY,
-          })
-        );
-      }
-    };
+          });
+          dispatch(
+            roomActions.update({
+              ...currentRoom,
+              usernameY: "",
+              userY: "",
+              status: STATUS_ENUM.EMPTY,
+            })
+          );
+        }
+      };
 
-    window.onpopstate = beforeClosing;
+      window.onpopstate = beforeClosing;
+    }
   }, [currentRoom, dispatch, navigate, turn, user]);
 
   socket.on("conectingWithUserY", (room: Room_Type) => {
@@ -138,19 +156,18 @@ function GameBoard() {
 
   useEffect(() => {
     socket.on("deleteRoom", (room) => {
-      // if (currentRoom.id === room.id) {
       if (user.as === PLAYER_ENUM.AS_O) {
         if (turn === TURN_TYPE.O || turn === TURN_TYPE.X) {
           setWin(WIN.O);
           dispatch(turnActions.end());
-
           dispatch(roomActions.update({ ...room, userX: "" }));
+          return;
         }
+        dispatch(currentIdActions.delete());
         dispatch(cellActions.reset());
         dispatch(userActions.set({ ...user, as: PLAYER_ENUM.NONE }));
         navigate("/");
       }
-      // }
       dispatch(roomActions.deleteRoom(room.id));
     });
 
@@ -401,7 +418,7 @@ function GameBoard() {
     });
   };
 
-  const handelRestart = () => {
+  const handelRestart = async () => {
     if (turn !== TURN_TYPE.END) {
       socket.emit(
         "askForResetCell",
@@ -410,6 +427,26 @@ function GameBoard() {
       setCursorWait(true);
       setMessage("Wait for your opponent's answer!");
       return;
+    }
+
+    if (win === WIN.X) {
+      const game: Game_Type = {
+        id: (Math.random() * 100000).toString(),
+        usernameX: currentRoom.usernameX,
+        usernameY: currentRoom.usernameY,
+        winnerName: currentRoom.usernameX,
+      };
+      await addGame(game);
+    }
+
+    if (win === WIN.O) {
+      const game: Game_Type = {
+        id: (Math.random() * 100000).toString(),
+        usernameX: currentRoom.usernameX,
+        usernameY: currentRoom.usernameY,
+        winnerName: currentRoom.usernameY,
+      };
+      await addGame(game);
     }
 
     dispatch(cellActions.reset());
@@ -433,6 +470,7 @@ function GameBoard() {
     setMessage("");
     setOpenResetModal(false);
   };
+
   const handleNo = () => {
     socket.emit(
       "no",

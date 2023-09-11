@@ -1,10 +1,4 @@
-import { Game_Type } from "../type";
-interface ResultItem {
-  usernameX: string;
-  usernameY: string;
-  numOfUserxAsWinner: number;
-  numOfUseryAsWinner: number;
-}
+import { Game_Type, ResultItem } from "../type";
 
 export function findSameGames(arr: Game_Type[]) {
   const resultMap: { [key: string]: ResultItem } = {};

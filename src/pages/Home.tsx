@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -13,6 +13,8 @@ import { ERROR_ENUM, PLAYER_ENUM, Room_Type, STATUS_ENUM } from "../type";
 import Modal from "../components/Modal";
 import Search from "../components/home/Search";
 import RoomList from "../components/home/RoomList";
+import { getGames } from "../firebase/features/game";
+import { gameActions } from "../store/features/games";
 
 function Home() {
   const dispatch = useAppDispatch();
@@ -34,6 +36,14 @@ function Home() {
 
   const [currentRoom, setCurrentRoom] = useState<Room_Type>({} as Room_Type);
   const [isPassword, setIsPassword] = useState<boolean>(false);
+
+  useEffect(() => {
+    getGames(user.email).then((data) => {
+      if (data) {
+        dispatch(gameActions.setGames(data));
+      }
+    });
+  }, [dispatch, user]);
 
   const openRoomGenerateModal = () => {
     setIsRoomGenerateModalOpen(true);

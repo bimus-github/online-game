@@ -1,9 +1,11 @@
 import React from "react";
 import { useAppSelector } from "../store/hooks";
 import { findSameGames } from "../utils/findSameGames";
+import { separateUsers } from "../utils/separateUsers";
 
 function Games() {
   const games = useAppSelector((state) => state.game);
+  const user = useAppSelector((state) => state.user);
 
   const sameGames = findSameGames(games);
   return (
@@ -26,17 +28,23 @@ function Games() {
           <div className=" text-red-500">You haven't tried anyone yet</div>
         )}
 
-        {sameGames.map((game, i) => (
-          <div className="flex w-full p-2 gap-2" key={i}>
-            <div className=" flex-1 flex justify-center">{game.usernameX}</div>
-            <div className=" flex-2 flex gap-3">
-              <div className="">{game.numOfUserxAsWinner}</div>
-              <div className="w-[2px] h-full bg-black" />
-              <div className="">{game.numOfUseryAsWinner}</div>
+        {sameGames.map((game, i) => {
+          const { opponent, opponentsShot, you, yourShot } = separateUsers(
+            game,
+            user.email
+          )!;
+          return (
+            <div className="flex w-full p-2 gap-2" key={i}>
+              <div className=" flex-1 flex justify-center">{you}</div>
+              <div className=" flex-2 flex gap-3">
+                <div className="">{yourShot}</div>
+                <div className="w-[2px] h-full bg-black" />
+                <div className="">{opponentsShot}</div>
+              </div>
+              <div className=" flex-1 flex justify-center">{opponent}</div>
             </div>
-            <div className=" flex-1 flex justify-center">{game.usernameY}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -18,6 +18,13 @@ export interface Game_Type {
   winnerName: string;
 }
 
+export interface ResultItem {
+  usernameX: string;
+  usernameY: string;
+  numOfUserxAsWinner: number;
+  numOfUseryAsWinner: number;
+}
+
 export enum STATUS_ENUM {
   EMPTY = "EMPTY",
   BUSY = "BUSY",
